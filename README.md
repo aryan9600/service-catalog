@@ -50,17 +50,15 @@ To view API documentation, navigate to `/swagger/index.html`.
 
 ### Tests
 
-Populate the `.env.test` file. Then run:
-
 ```bash
-go test -v ./...
+make test
 ```
 
 At the moment, there are tests only for read operations on Services along with Versions.
 
 ### Design decisions
 
-* JWT over session auth to reduce DB usage.
+* JWT over session auth.
 * Use of an ORM over plain SQL queries, since this is a simple CRUD app and there are no complex queries.
 * Seperate migrations folder for visibility and flexibility with optional auto migrations.
 * PostgreSQL as a data store since the app fits in the relational model well.
