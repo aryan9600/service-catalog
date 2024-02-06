@@ -156,6 +156,7 @@ func getServiceWithVersions(c *gin.Context, svcID, userID uint) {
 		},
 		Name:        output[0].Name,
 		Description: output[0].Description,
+		UserID:      int(userID),
 	}
 	var versions []models.Version
 	for _, val := range output {
@@ -167,6 +168,7 @@ func getServiceWithVersions(c *gin.Context, svcID, userID uint) {
 			},
 			Version:   val.Version,
 			Changelog: val.Changelog,
+			ServiceID: int(svcID),
 		})
 	}
 
