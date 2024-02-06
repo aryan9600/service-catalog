@@ -16,6 +16,7 @@ type Version struct {
 	Changelog string `json:"changelog"`
 }
 
+// CreateVersionInput represents the input required to create Version object.
 type CreateVersionInput struct {
 	Version   string `json:"version" binding:"required,max=50"`
 	ServiceID int
@@ -23,6 +24,9 @@ type CreateVersionInput struct {
 	UserID    uint
 }
 
+// CreateVersion fetches the Service with the provided id, and if it exists, it creates
+// a new Version according to the input and then update the related Service with the new
+// version string.
 func CreateVersion(input CreateVersionInput) (*Version, error) {
 	version := &Version{
 		Version:   input.Version,
