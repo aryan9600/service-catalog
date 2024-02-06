@@ -1,0 +1,48 @@
+version: '3.9'
+services:
+  app:
+    container_name: catalog
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
+      - TOKEN_HOUR_LIFESPAN=${TOKEN_HOUR_LIFESPAN}
+      - POSTGRES_DISABLE_SSL=${POSTGRES_DISABLE_SSL}
+      - AUTO_MIGRATE=true
+      - LOG_FILE=${LOG_FILE-file.log}
+    tty: true
+    build: .
+    volumes:
+      - ./log:/app/log
+    ports:
+      - 8080:8080
+    restart: on-failure
+    depends_on:
+      - postgresdb
+    networks:
+      - local
+
+  postgresdb:
+    image: postgres:latest
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
+
+volumes:
+  postgres_data:

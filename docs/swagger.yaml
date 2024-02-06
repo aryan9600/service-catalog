@@ -1,0 +1,317 @@
+definitions:
+  api.CreateVersionOutput:
+    properties:
+      data:
+        $ref: '#/definitions/models.Version'
+    type: object
+  api.GetServiceWithVersionsOutput:
+    properties:
+      data:
+        $ref: '#/definitions/api.ServiceWithVersions'
+    type: object
+  api.ListServicesOutput:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Service'
+        type: array
+    type: object
+  api.LoginOutput:
+    properties:
+      accessToken:
+        type: string
+    type: object
+  api.RegisterOutput:
+    properties:
+      data:
+        $ref: '#/definitions/models.User'
+    type: object
+  api.ServiceOutput:
+    properties:
+      data:
+        $ref: '#/definitions/models.Service'
+    type: object
+  api.ServiceWithVersions:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      versions:
+        items:
+          $ref: '#/definitions/models.Version'
+        type: array
+    type: object
+  api.UserAuthInput:
+    properties:
+      password:
+        maxLength: 20
+        type: string
+      username:
+        maxLength: 20
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.CreateServiceInput:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      userID:
+        type: integer
+    required:
+    - name
+    type: object
+  models.CreateVersionInput:
+    properties:
+      changelog:
+        type: string
+      serviceID:
+        type: integer
+      userID:
+        type: integer
+      version:
+        maxLength: 50
+        type: string
+    required:
+    - version
+    type: object
+  models.Service:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+      versions:
+        description: |-
+          Versions contains the different versions of this service.
+          It helps us fetch the versions without a JOIN query.
+        items:
+          type: string
+        type: array
+    type: object
+  models.UpdateServiceInput:
+    properties:
+      description:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  models.Version:
+    properties:
+      changelog:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      serviceID:
+        type: integer
+      updatedAt:
+        type: string
+      version:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Auth creds JSON
+        in: body
+        name: creds
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserAuthInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.LoginOutput'
+      summary: Login a user
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Auth creds JSON
+        in: body
+        name: creds
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserAuthInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.RegisterOutput'
+      summary: Register a user
+  /service:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Service JSON
+        in: body
+        name: service
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateServiceInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.ServiceOutput'
+      summary: Create a service.
+  /service/{id}:
+    get:
+      description: If the 'versions' query param is absent/false, versions is omitted
+        from the response.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Return related versions
+        in: query
+        name: versions
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GetServiceWithVersionsOutput'
+      summary: Get requested service.
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Service update JSON
+        in: body
+        name: version
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateServiceInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.ServiceOutput'
+      summary: Update a service
+  /service/{id}/version:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Version JSON
+        in: body
+        name: version
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateVersionInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.CreateVersionOutput'
+      summary: Create a version for a service
+  /services:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Limit results
+        in: query
+        name: limit
+        type: integer
+      - description: Query offset
+        in: query
+        name: offset
+        type: integer
+      - description: Key to sort records by
+        in: query
+        name: sortKey
+        type: string
+      - description: Sort records in descending order
+        in: query
+        name: descending
+        type: boolean
+      - description: Search records by name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ListServicesOutput'
+      summary: List all services for the authenticated user.
+swagger: "2.0"
